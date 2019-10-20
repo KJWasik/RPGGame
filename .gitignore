@@ -75,3 +75,7 @@ Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+RPGGame/Content/StarterContent/
+RPGGame/Intermediate/
+RPGGame/Saved/
+RPGGame/Binaries/
