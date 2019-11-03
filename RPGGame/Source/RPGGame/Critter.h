@@ -27,9 +27,18 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(EditAnywhere)
-	class UStaticMeshComponent* MeshComponent;
+	class USkeletalMeshComponent* MeshComponent;
 
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* Camera; // class - forward declaration, include in cpp file
+
+	UPROPERTY(EditAnywhere, Category = "PawnMovement")
+	float MaxSpeed;
+
+private:
+	void MoveForward(float Value);
+	void MoveRight(float Value);
+
+	FVector CurrentVelocity;
 
 };
