@@ -13,8 +13,12 @@ UCLASS()
 class RPGGAME_API APickup : public AItem
 {
 	GENERATED_BODY()
-
+		
+public:
 	APickup();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Coins")
+	int32 CoinCount;
 
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
