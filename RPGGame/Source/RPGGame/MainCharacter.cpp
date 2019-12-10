@@ -52,6 +52,35 @@ AMainCharacter::AMainCharacter()
 	MaxStamina = 350.f;
 	Stamina = 120.f;
 	Coins = 0;
+
+	RunningSpeed = 650.f;
+	SprintingSpeed = 950.f;
+
+	bShiftKeyDown = false;
+}
+
+void AMainCharacter::SetMovementStatus(EMovementStatus Status)
+{
+	MovementStatus = Status;
+	if (MovementStatus == EMovementStatus::EMS_Sprinting)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = SprintingSpeed;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = RunningSpeed;
+	}
+
+}
+
+void AMainCharacter::ShiftKeyDown()
+{
+	bShiftKeyDown = true;
+}
+
+void AMainCharacter::ShiftKeyUp()
+{
+	bShiftKeyDown = false;
 }
 
 void AMainCharacter::DecrementHealth(float Amount)
@@ -99,6 +128,9 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMainCharacter::ShiftKeyDown);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMainCharacter::ShiftKeyUp);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMainCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMainCharacter::MoveRight);
