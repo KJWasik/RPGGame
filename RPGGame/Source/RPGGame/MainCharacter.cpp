@@ -11,6 +11,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Weapon.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimInstance.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -67,6 +69,8 @@ AMainCharacter::AMainCharacter()
 
 	StaminaDrainRate = 25.f;
 	MinSprintStamina = 50.f;
+
+	bAttacking = false;
 }
 
 void AMainCharacter::ShowPickupLocations()
@@ -303,6 +307,10 @@ void AMainCharacter::LMBDown()
 			SetActiveOverlappingItem(nullptr);
 		}
 	}
+	else if (EquippedWeapon)
+	{
+		Attack();
+	}
 }
 
 void AMainCharacter::LMBUp()
@@ -317,5 +325,17 @@ void AMainCharacter::SetEquippedWeapon(AWeapon* WeaponToSet)
 		EquippedWeapon->Destroy();
 	}
 	EquippedWeapon = WeaponToSet;
+}
+
+void AMainCharacter::Attack()
+{
+	bAttacking = true;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && CombatMontage)
+	{
+		AnimInstance->Montage_Play(CombatMontage, 1.35f);
+		AnimInstance->Montage_JumpToSection(FName("Attack_1"), CombatMontage);
+	}
 }
 
