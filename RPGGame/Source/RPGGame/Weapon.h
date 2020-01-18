@@ -33,6 +33,9 @@ public:
 	bool bWeaponParticles;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	USoundCue* SwingSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	class USoundCue* OnEquipSound;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "SkeletalMesh")
@@ -62,7 +65,7 @@ public:
 	void CombatOnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION(BlueprintCallable)
-	void ActiveCollision();
+	void ActivateCollision();
 	UFUNCTION(BlueprintCallable)
-	void DeactiveCollision();
+	void DeactivateCollision();
 };

@@ -115,6 +115,10 @@ void AWeapon::CombatOnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* 
 					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Enemy->HitParticles, SocketLocation, FRotator(0.f), false);
 				}
 			}
+			if (Enemy->HitSound)
+			{
+				UGameplayStatics::PlaySound2D(this, Enemy->HitSound);
+			}
 		}
 	}
 }
@@ -124,12 +128,12 @@ void AWeapon::CombatOnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* Ot
 
 }
 
-void AWeapon::ActiveCollision()
+void AWeapon::ActivateCollision()
 {
 	CombatCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
-void AWeapon::DeactiveCollision()
+void AWeapon::DeactivateCollision()
 {
 	CombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
