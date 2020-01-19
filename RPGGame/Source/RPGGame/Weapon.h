@@ -68,4 +68,12 @@ public:
 	void ActivateCollision();
 	UFUNCTION(BlueprintCallable)
 	void DeactivateCollision();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	TSubclassOf<UDamageType> DamageTypeClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat")
+	AController* WeaponInstigator;
+	
+	FORCEINLINE void SetInstigator(AController* Instigator) { WeaponInstigator = Instigator; }
 };

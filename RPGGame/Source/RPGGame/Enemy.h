@@ -12,6 +12,7 @@ enum class EEnemyMovementStatus : uint8
 	EEMS_Idle UMETA(DisplayName = "Idle"),
 	EEMS_MoveToTarget UMETA(DisplayName = "MoveToTarget"),
 	EEMS_Attack UMETA(DisplayName = "Attack"),
+	EEMS_Dead UMETA(DisplayName = "Dead"),
 
 	EEMS_MAX UMETA(DisplayName = "DefaultMAX")
 };
@@ -29,6 +30,7 @@ public:
 	EEnemyMovementStatus EnemyMovementStatus;
 
 	FORCEINLINE void SetEnemyMovementStatus(EEnemyMovementStatus Status) { EnemyMovementStatus = Status; };
+	FORCEINLINE EEnemyMovementStatus GetEnemyMovementStatus() { return EnemyMovementStatus; };
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	class USphereComponent* AgroSphere;
@@ -77,6 +79,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float AttackMaxTime;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	TSubclassOf<UDamageType> DamageTypeClass;
+
+	FTimerHandle DeathTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	float DeathDelay;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -120,4 +130,16 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+	void Die();
+
+	UFUNCTION(BlueprintCallable)
+	void DeathEnd();
+
+	UFUNCTION(BlueprintCallable)
+	bool Alive();
+
+	void Disappear();
 };
