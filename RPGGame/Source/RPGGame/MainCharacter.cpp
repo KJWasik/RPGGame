@@ -82,6 +82,9 @@ AMainCharacter::AMainCharacter()
 	bInterpToEnemy = false;
 
 	bHasCombatTarget = false;
+
+	bMovingForward = false;
+	bMovingRight = false;
 }
 
 void AMainCharacter::ShowPickupLocations()
@@ -213,7 +216,15 @@ void AMainCharacter::Tick(float DeltaTime)
 			{
 				Stamina -= DeltaStamina;
 			}
-			SetMovementStatus(EMovementStatus::EMS_Sprinting);
+			
+			if (bMovingForward || bMovingRight)
+			{
+				SetMovementStatus(EMovementStatus::EMS_Sprinting);
+			}
+			else
+			{
+				SetMovementStatus(EMovementStatus::EMS_Normal);
+			}
 		}
 		else // Shift key up
 		{
@@ -241,7 +252,14 @@ void AMainCharacter::Tick(float DeltaTime)
 			else
 			{
 				Stamina -= DeltaStamina;
-				SetMovementStatus(EMovementStatus::EMS_Sprinting);
+				if (bMovingForward || bMovingRight)
+				{
+					SetMovementStatus(EMovementStatus::EMS_Sprinting);
+				}
+				else
+				{
+					SetMovementStatus(EMovementStatus::EMS_Normal);
+				}
 			}
 		}
 		else // Shift key up
@@ -334,6 +352,8 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void AMainCharacter::MoveForward(float Input)
 {
+	bMovingForward = false;
+
 	if (Controller != nullptr && Input != 0.f && (!bAttacking) && (MovementStatus != EMovementStatus::EMS_Dead))
 	{
 		// Find out which way is forward
@@ -342,11 +362,15 @@ void AMainCharacter::MoveForward(float Input)
 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Input);
+
+		bMovingForward = true;
 	}
 }
 
 void AMainCharacter::MoveRight(float Input)
 {
+	bMovingRight = false;
+
 	if (Controller != nullptr && Input != 0.f && (!bAttacking) && (MovementStatus != EMovementStatus::EMS_Dead))
 	{
 		// Find out which way is forward
@@ -355,6 +379,8 @@ void AMainCharacter::MoveRight(float Input)
 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, Input);
+
+		bMovingRight = true;
 	}
 }
 

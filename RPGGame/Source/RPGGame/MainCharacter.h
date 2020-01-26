@@ -161,8 +161,12 @@ public:
 	/** Called for forward / backwards input */
 	void MoveForward(float Input);
 
+	bool bMovingForward;
+
 	/** Called for side to side input */
 	void MoveRight(float Input);
+
+	bool bMovingRight;
 
 	/** Called via imput to turn at given rate
 	* @param Rate - normalized rate, i.e. 1.0 means 100% of desired turn rate
