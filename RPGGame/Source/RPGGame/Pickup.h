@@ -17,11 +17,10 @@ class RPGGAME_API APickup : public AItem
 public:
 	APickup();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Coins")
-	int32 CoinCount;
-
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Pickup")
+	void OnPickupBP(class AMainCharacter* Target);
 };
