@@ -26,6 +26,9 @@ class RPGGAME_API AWeapon : public AItem
 public:
 	AWeapon();
 
+	UPROPERTY(EditDefaultsOnly, Category = "SavedData")
+	FString Name;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item")
 	EWeaponState WeaponState;
 
