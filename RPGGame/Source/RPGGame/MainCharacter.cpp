@@ -18,6 +18,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Enemy.h"
 #include "MainPlayerController.h"
+#include "RPGSaveGame.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -557,3 +558,37 @@ void AMainCharacter::SwitchLevel(FName LevelName)
 	}
 }
 
+void AMainCharacter::SaveGame()
+{
+	URPGSaveGame* SaveGameInstance = Cast<URPGSaveGame>(UGameplayStatics::CreateSaveGameObject(URPGSaveGame::StaticClass()));
+
+	SaveGameInstance->CharacterStats.Health = Health;
+	SaveGameInstance->CharacterStats.MaxHealth = MaxHealth;
+	SaveGameInstance->CharacterStats.Stamina = Stamina;
+	SaveGameInstance->CharacterStats.MaxStamina = MaxStamina;
+	SaveGameInstance->CharacterStats.Coins = Coins;
+
+	SaveGameInstance->CharacterStats.Location = GetActorLocation();
+	SaveGameInstance->CharacterStats.Rotation = GetActorRotation();
+
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->PlayerName, SaveGameInstance->UserIndex);
+}
+
+void AMainCharacter::LoadGame(bool SetPosition)
+{
+	URPGSaveGame* LoadGameInstance = Cast<URPGSaveGame>(UGameplayStatics::CreateSaveGameObject(URPGSaveGame::StaticClass()));
+
+	LoadGameInstance = Cast<URPGSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
+
+	Health = LoadGameInstance->CharacterStats.Health;
+	MaxHealth = LoadGameInstance->CharacterStats.MaxHealth;
+	Stamina = LoadGameInstance->CharacterStats.Stamina;
+	MaxStamina = LoadGameInstance->CharacterStats.MaxStamina;
+	Coins = LoadGameInstance->CharacterStats.Coins;
+
+	if (SetPosition)
+	{
+		SetActorLocation(LoadGameInstance->CharacterStats.Location);
+		SetActorRotation(LoadGameInstance->CharacterStats.Rotation);
+	}
+}
