@@ -70,6 +70,8 @@ AMainCharacter::AMainCharacter()
 	bShiftKeyDown = false;
 	bLMBDown = false;
 
+	bESCDown = false;
+
 	// Initialize Enums
 	MovementStatus = EMovementStatus::EMS_Normal;
 	StaminaStatus = EStaminaStatus::ESS_Normal;
@@ -351,6 +353,9 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMainCharacter::ShiftKeyDown);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMainCharacter::ShiftKeyUp);
 
+	PlayerInputComponent->BindAction("ESC", IE_Pressed, this, &AMainCharacter::ESCDown);
+	PlayerInputComponent->BindAction("ESC", IE_Released, this, &AMainCharacter::ESCUp);
+
 	PlayerInputComponent->BindAction("LMB", IE_Pressed, this, &AMainCharacter::LMBDown);
 	PlayerInputComponent->BindAction("LMB", IE_Released, this, &AMainCharacter::LMBUp);
 
@@ -435,6 +440,21 @@ void AMainCharacter::LMBDown()
 void AMainCharacter::LMBUp()
 {
 	bLMBDown = false;
+}
+
+void AMainCharacter::ESCDown()
+{
+	bESCDown = true;
+
+	if (MainPlayerController)
+	{
+		MainPlayerController->TogglePauseMenu();
+	}
+}
+
+void AMainCharacter::ESCUp()
+{
+	bESCDown = false;
 }
 
 void AMainCharacter::SetEquippedWeapon(AWeapon* WeaponToSet)
