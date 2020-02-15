@@ -4,6 +4,12 @@
 #include "MainPlayerController.h"
 #include "Blueprint/UserWidget.h"
 
+void AMainPlayerController::GameModeOnly()
+{
+	FInputModeGameOnly InputModeGameOnly;
+	SetInputMode(InputModeGameOnly);
+}
+
 void AMainPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -75,6 +81,31 @@ void AMainPlayerController::RemoveEnemyHealthBar()
 	}
 }
 
+void AMainPlayerController::DisplayPauseMenu_Implementation()
+{
+	if (PauseMenu)
+	{
+		bPauseMenuVisible = true;
+		PauseMenu->SetVisibility(ESlateVisibility::Visible);
+
+		FInputModeGameAndUI InputModeGameAndUI;
+		SetInputMode(InputModeGameAndUI);
+		bShowMouseCursor = true;
+	}
+}
+
+void AMainPlayerController::RemovePauseMenu_Implementation()
+{
+	if (PauseMenu)
+	{
+		GameModeOnly();
+
+		bShowMouseCursor = false;
+
+		bPauseMenuVisible = false;
+	}
+}
+
 void AMainPlayerController::TogglePauseMenu()
 {
 	if (bPauseMenuVisible)
@@ -84,23 +115,5 @@ void AMainPlayerController::TogglePauseMenu()
 	else
 	{
 		DisplayPauseMenu();
-	}
-}
-
-void AMainPlayerController::DisplayPauseMenu()
-{
-	if (PauseMenu)
-	{
-		bPauseMenuVisible = true;
-		PauseMenu->SetVisibility(ESlateVisibility::Visible);
-	}
-}
-
-void AMainPlayerController::RemovePauseMenu()
-{
-	if (PauseMenu)
-	{
-		bPauseMenuVisible = false;
-		PauseMenu->SetVisibility(ESlateVisibility::Hidden);
 	}
 }

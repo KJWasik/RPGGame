@@ -34,6 +34,9 @@ struct FCharacterStats
 
 	UPROPERTY(VisibleAnywhere, Category = "SavedGameData")
 	FString WeaponName;
+
+	UPROPERTY(VisibleAnywhere, Category = "SavedGameData")
+	FString LevelName;
 };
 
 /**

@@ -181,6 +181,11 @@ void AMainCharacter::IncrementHealth(float Amount)
 
 void AMainCharacter::Die()
 {
+	if (MovementStatus == EMovementStatus::EMS_Dead)
+	{
+		return;
+	}
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && CombatMontage)
 	{
@@ -192,6 +197,11 @@ void AMainCharacter::Die()
 
 void AMainCharacter::Jump()
 {
+	if (MainPlayerController) if (MainPlayerController->bPauseMenuVisible)
+	{
+		return;
+	}
+
 	if (MovementStatus != EMovementStatus::EMS_Dead)
 	{
 		Super::Jump();
@@ -204,6 +214,13 @@ void AMainCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
+
+	LoadGameNoSwitch();
+
+	if (MainPlayerController)
+	{
+		MainPlayerController->GameModeOnly();
+	}
 }
 
 // Called every frame
@@ -362,8 +379,8 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMainCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMainCharacter::MoveRight);
 
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("Turn", this, &AMainCharacter::Turn);
+	PlayerInputComponent->BindAxis("LookUp", this, &AMainCharacter::LookUp);
 
 	PlayerInputComponent->BindAxis("TurnRate", this, &AMainCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AMainCharacter::LookUpAtRate);
@@ -373,7 +390,7 @@ void AMainCharacter::MoveForward(float Input)
 {
 	bMovingForward = false;
 
-	if (Controller != nullptr && Input != 0.f && (!bAttacking) && (MovementStatus != EMovementStatus::EMS_Dead))
+	if (CanMove(Input))
 	{
 		// Find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -390,7 +407,7 @@ void AMainCharacter::MoveRight(float Input)
 {
 	bMovingRight = false;
 
-	if (Controller != nullptr && Input != 0.f && (!bAttacking) && (MovementStatus != EMovementStatus::EMS_Dead))
+	if (CanMove(Input))
 	{
 		// Find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -400,6 +417,34 @@ void AMainCharacter::MoveRight(float Input)
 		AddMovementInput(Direction, Input);
 
 		bMovingRight = true;
+	}
+}
+
+bool AMainCharacter::CanMove(float Value)
+{
+	if (MainPlayerController)
+	{
+		return (Value != 0.f) && (!bAttacking) && (MovementStatus != EMovementStatus::EMS_Dead) && !(MainPlayerController->bPauseMenuVisible);
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void AMainCharacter::Turn(float Input)
+{
+	if (CanMove(Input))
+	{
+		AddControllerYawInput(Input);
+	}
+}
+
+void AMainCharacter::LookUp(float Input)
+{
+	if (CanMove(Input))
+	{
+		AddControllerPitchInput(Input);
 	}
 }
 
@@ -418,6 +463,11 @@ void AMainCharacter::LMBDown()
 	bLMBDown = true;
 
 	if (MovementStatus == EMovementStatus::EMS_Dead)
+	{
+		return;
+	}
+
+	if (MainPlayerController) if (MainPlayerController->bPauseMenuVisible)
 	{
 		return;
 	}
@@ -589,6 +639,10 @@ void AMainCharacter::SaveGame()
 	SaveGameInstance->CharacterStats.MaxStamina = MaxStamina;
 	SaveGameInstance->CharacterStats.Coins = Coins;
 
+	FString MapName = GetWorld()->GetMapName();
+	MapName.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+	SaveGameInstance->CharacterStats.LevelName = MapName;
+
 	if (EquippedWeapon)
 	{
 		SaveGameInstance->CharacterStats.WeaponName = EquippedWeapon->Name;
@@ -632,5 +686,51 @@ void AMainCharacter::LoadGame(bool SetPosition)
 	{
 		SetActorLocation(LoadGameInstance->CharacterStats.Location);
 		SetActorRotation(LoadGameInstance->CharacterStats.Rotation);
+	}
+
+	SetMovementStatus(EMovementStatus::EMS_Normal);
+	GetMesh()->bPauseAnims = false;
+	GetMesh()->bNoSkeletonUpdate = false;
+
+	if (LoadGameInstance->CharacterStats.LevelName != TEXT(""))
+	{
+		FName LevelName(*LoadGameInstance->CharacterStats.LevelName);
+
+		SwitchLevel(LevelName);
+	}
+}
+
+void AMainCharacter::LoadGameNoSwitch()
+{
+	{
+		URPGSaveGame* LoadGameInstance = Cast<URPGSaveGame>(UGameplayStatics::CreateSaveGameObject(URPGSaveGame::StaticClass()));
+
+		LoadGameInstance = Cast<URPGSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
+
+		Health = LoadGameInstance->CharacterStats.Health;
+		MaxHealth = LoadGameInstance->CharacterStats.MaxHealth;
+		Stamina = LoadGameInstance->CharacterStats.Stamina;
+		MaxStamina = LoadGameInstance->CharacterStats.MaxStamina;
+		Coins = LoadGameInstance->CharacterStats.Coins;
+
+		if (WeaponStorage)
+		{
+			AItemStorage* Weapons = GetWorld()->SpawnActor<AItemStorage>(WeaponStorage);
+
+			if (Weapons)
+			{
+				FString WeaponName = LoadGameInstance->CharacterStats.WeaponName;
+
+				if (WeaponName != "")
+				{
+					AWeapon* WeaponToEquip = GetWorld()->SpawnActor<AWeapon>(Weapons->WeaponMap[WeaponName]);
+					WeaponToEquip->Equip(this);
+				}
+			}
+		}
+
+		SetMovementStatus(EMovementStatus::EMS_Normal);
+		GetMesh()->bPauseAnims = false;
+		GetMesh()->bNoSkeletonUpdate = false;
 	}
 }

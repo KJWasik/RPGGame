@@ -175,6 +175,14 @@ public:
 
 	bool bMovingRight;
 
+	bool CanMove(float Value);
+
+	/** Called for yaw rotation */
+	void Turn(float Input);
+
+	/** Called for pitch rotation */
+	void LookUp(float Input);
+
 	/** Called via imput to turn at given rate
 	* @param Rate - normalized rate, i.e. 1.0 means 100% of desired turn rate
 	*/
@@ -236,4 +244,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void LoadGame(bool SetPosition);
+
+	void LoadGameNoSwitch();
 };
